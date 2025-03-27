@@ -1,0 +1,69 @@
+java ligin page 
+
+import javax.swing.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class LoginPage extends JFrame implements ActionListener {
+    JTextField userField;
+    JPasswordField passField;
+    JButton loginButton;
+
+    public LoginPage() {
+        setTitle("Login Page");
+
+        // Username Label and Field
+        JLabel userLabel = new JLabel("Username:");
+        userField = new JTextField(20);
+        add(userLabel);
+        add(userField);
+
+        // Password Label and Field
+        JLabel passLabel = new JLabel("Password:");
+        passField = new JPasswordField(20);
+        add(passLabel);
+        add(passField);
+
+        // Login Button
+        loginButton = new JButton("Login");
+        loginButton.addActionListener(this);
+        add(loginButton);
+
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        setSize(300, 150);
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String username = userField.getText();
+        String password = new String(passField.getPassword());
+        if (authenticateUser(username, password)) {
+            JOptionPane.showMessageDialog(this, "Login Successful");
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid Credentials");
+        }
+    }
+
+    private boolean authenticateUser(String username, String password) {
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/testdb", "root", "password");
+            String sql = "SELECT * FROM users WHERE username=? AND password=?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // User found if true
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        new LoginPage();
+    }
+}
+
